@@ -1,15 +1,8 @@
-import mongoose, { Schema } from "mongoose";
-
-export interface IUser {
-  name: string;
-  email: string;
-  password: string;
-  avatar?: string;
-}
+import { InferSchemaType, Schema, model } from "mongoose";
 
 const emailRegexp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
-const userSchema = new Schema<IUser>(
+const userSchema = new Schema(
   {
     name: {
       type: String,
@@ -25,11 +18,20 @@ const userSchema = new Schema<IUser>(
       type: String,
       required: [true, "Password is required"],
     },
-    avatar: String,
+    avatar: {
+      type: String,
+      default: null,
+    },
+    token: {
+      type: String,
+      default: null,
+    },
   },
   { versionKey: false, timestamps: true }
 );
 
-const UserModel = mongoose.model<IUser>("User", userSchema);
+export type User = InferSchemaType<typeof userSchema>;
+
+const UserModel = model("User", userSchema);
 
 export default UserModel;

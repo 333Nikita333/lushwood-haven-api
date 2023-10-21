@@ -1,4 +1,10 @@
-import { IsEmail, IsNotEmpty, IsString, Length } from "class-validator";
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  Length,
+  Matches,
+} from "class-validator";
 
 export class RegisterUserDto {
   @IsNotEmpty()
@@ -7,10 +13,13 @@ export class RegisterUserDto {
 
   @IsNotEmpty()
   @IsEmail()
+  @Matches(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, {
+    message: "Invalid email format",
+  })
   email: string;
 
   @IsNotEmpty()
   @IsString()
-  @Length(6, 20)
+  @Length(6, 30)
   password: string;
 }
