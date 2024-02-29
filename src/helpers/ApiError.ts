@@ -12,7 +12,7 @@ export class ApiError extends HttpError {
 
   constructor(status = 500, error: Omit<MessageInterface, "status">) {
     super(status);
-    console.log("this =>", this)
+    console.log("this =>", this);
     if (this.stack) {
       delete this.stack;
     }
