@@ -1,11 +1,14 @@
-import "reflect-metadata";
-import express from "express";
-import { useExpressServer } from "routing-controllers";
 import { controllers } from "app/domain";
 import { middlewares } from "app/middlewares";
-import { IService } from "types/services";
-import mongoose from "mongoose";
+import UserModel from "app/models/User";
 import "dotenv/config";
+import express from "express";
+import { ApiError } from "helpers/ApiError";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import mongoose from "mongoose";
+import "reflect-metadata";
+import { Action, useExpressServer } from "routing-controllers";
+import { IService } from "types/services";
 
 export class Tcp implements IService {
   private static instance: Tcp;
@@ -34,14 +37,64 @@ export class Tcp implements IService {
 
   async init() {
     const { server, routePrefix } = this;
+
     server.use(express.json());
 
     await this.connectToDatabase();
 
     useExpressServer(server, {
       routePrefix,
-      controllers,
       middlewares,
+      currentUserChecker: async (action: Action) => {
+        const secretKey: string = process.env.SECRET_KEY || "";
+        const { authorization = "" } = action.request.headers;
+        const [bearer, token] = authorization.split(" ");
+
+        if (bearer !== "Bearer" || !token) {
+          const errorData = {
+            message: "Invalid or missing Authorization Header",
+            code: "UNAUTHORIZED",
+          };
+          throw new ApiError(401, errorData);
+        }
+
+        try {
+          const decodedToken = jwt.verify(token, secretKey) as JwtPayload;
+
+          if (typeof decodedToken !== "object" || !decodedToken.id) {
+            const errorData = {
+              message: "Invalid token format or missing required data",
+              code: "UNAUTHORIZED",
+            };
+            throw new ApiError(401, errorData);
+          }
+
+          const { id } = decodedToken;
+
+          const existingUser = await UserModel.findById(id);
+
+          if (
+            !existingUser ||
+            !existingUser.token ||
+            existingUser.token !== token
+          ) {
+            const errorData = {
+              message: "Expired token or user not found",
+              code: "UNAUTHORIZED",
+            };
+            throw new ApiError(401, errorData);
+          }
+
+          return existingUser;
+        } catch (error) {
+          const errorData = {
+            message: "Expired token or not valid token",
+            code: "UNAUTHORIZED",
+          };
+          throw new ApiError(401, errorData);
+        }
+      },
+      controllers,
       cors: true,
       defaultErrorHandler: true,
       validation: false,

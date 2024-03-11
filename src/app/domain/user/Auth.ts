@@ -5,12 +5,31 @@ import { validate } from "class-validator";
 import { ApiError } from "helpers/ApiError";
 import { ApiResponse } from "helpers/ApiResponse";
 import jwt from "jsonwebtoken";
-import { Body, JsonController, Post, UseAfter } from "routing-controllers";
+import {
+  Body,
+  CurrentUser,
+  Get,
+  JsonController,
+  Post,
+  UseAfter,
+} from "routing-controllers";
 import { LoginUserDto, RegisterUserDto } from "./User.dto";
 
 @JsonController("/auth")
 export default class Auth {
   private secretKey = process.env.SECRET_KEY || "";
+  private uniquePayloadString: string;
+
+  generateUniqueString(length: number): void {
+    const characters =
+      "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let result = "";
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    this.uniquePayloadString = result;
+  }
 
   @Post("/register")
   @UseAfter(HTTPResponseLogger)
@@ -41,9 +60,11 @@ export default class Auth {
     }
 
     const hashedPassword = hashSync(password, genSaltSync(10));
+
     const payload = {
-      email,
+      id: this.generateUniqueString(10),
     };
+
     const token = jwt.sign(payload, this.secretKey, { expiresIn: "23h" });
     await UserModel.create({
       ...body,
@@ -100,9 +121,12 @@ export default class Auth {
     }
 
     const payload = {
-      email: existingUser.email,
+      id: existingUser._id,
     };
     const token = jwt.sign(payload, this.secretKey, { expiresIn: "23h" });
+
+    await UserModel.findByIdAndUpdate(existingUser._id, { token });
+
     const userData = {
       token,
       user: {
@@ -110,6 +134,16 @@ export default class Auth {
         email: existingUser.email,
       },
     };
+
     return new ApiResponse(true, userData, "User logged in successfully");
+  }
+
+  @Get("/current")
+  @UseAfter(HTTPResponseLogger)
+  async current(@CurrentUser() user?: User): Promise<ApiResponse<User | {}>> {
+    const userData = { name: user?.name, email: user?.email };
+    console.log("userData => ", userData);
+
+    return new ApiResponse(true, userData, "User data fetched successfully");
   }
 }
