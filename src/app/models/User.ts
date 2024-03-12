@@ -3,7 +3,7 @@ import { Document, Model, Schema, model } from "mongoose";
 const emailRegexp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
 export interface User extends Document {
-  _id: string;
+  _id: Object;
   name: string;
   email: string;
   password: string;
