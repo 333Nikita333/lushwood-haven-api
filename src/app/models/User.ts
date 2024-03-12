@@ -1,8 +1,16 @@
-import { InferSchemaType, Schema, model } from "mongoose";
+import { Document, Model, Schema, model } from "mongoose";
 
 const emailRegexp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
-const userSchema = new Schema(
+export interface User extends Document {
+  _id: string;
+  name: string;
+  email: string;
+  password: string;
+  token: string | null;
+}
+
+const userSchema = new Schema<User>(
   {
     name: {
       type: String,
@@ -26,8 +34,6 @@ const userSchema = new Schema(
   { versionKey: false, timestamps: true }
 );
 
-export type User = InferSchemaType<typeof userSchema>;
-
-const UserModel = model("User", userSchema);
+const UserModel: Model<User> = model<User>("User", userSchema);
 
 export default UserModel;

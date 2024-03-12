@@ -1,6 +1,6 @@
 import { controllers } from "app/domain";
 import { middlewares } from "app/middlewares";
-import UserModel from "app/models/User";
+import UserModel, { User } from "app/models/User";
 import "dotenv/config";
 import express from "express";
 import { ApiError } from "helpers/ApiError";
@@ -15,6 +15,7 @@ export class Tcp implements IService {
   private routePrefix = "/api";
   private mongoUrl = process.env.DB_HOST!;
   private port = process.env.PORT || 3000;
+  private secretKey = process.env.SECRET_KEY || "";
   public server = express();
 
   constructor() {
@@ -45,8 +46,57 @@ export class Tcp implements IService {
     useExpressServer(server, {
       routePrefix,
       middlewares,
-      currentUserChecker: async (action: Action) => {
-        const secretKey: string = process.env.SECRET_KEY || "";
+      authorizationChecker: async (action: Action): Promise<boolean> => {
+        const { authorization = "" } = action.request.headers;
+        const [bearer, token] = authorization.split(" ");
+
+        try {
+          if (bearer !== "Bearer" || !token) {
+            console.log("Here")
+            const errorData = {
+              message: "Invalid or missing Authorization Header",
+              code: "UNAUTHORIZED",
+            };
+            throw new ApiError(401, errorData);
+          }
+
+          const decodedToken = jwt.verify(token, this.secretKey) as JwtPayload;
+
+          if (typeof decodedToken !== "object" || !decodedToken.id) {
+            const errorData = {
+              message: "Invalid token format or missing required data",
+              code: "UNAUTHORIZED",
+            };
+            throw new ApiError(401, errorData);
+          }
+
+          const { id } = decodedToken;
+
+          const existingUser = await UserModel.findById(id);
+
+          if (
+            !existingUser ||
+            !existingUser.token ||
+            existingUser.token !== token
+          ) {
+            const errorData = {
+              message: "Expired token or user not found",
+              code: "UNAUTHORIZED",
+            };
+            throw new ApiError(401, errorData);
+          }
+
+          action.request.user = existingUser;
+          return true;
+        } catch (error) {
+          const errorData = {
+            message: "Expired token or not valid token",
+            code: "UNAUTHORIZED",
+          };
+          throw new ApiError(401, errorData);
+        }
+      },
+      currentUserChecker: async (action: Action): Promise<User> => {
         const { authorization = "" } = action.request.headers;
         const [bearer, token] = authorization.split(" ");
 
@@ -59,7 +109,7 @@ export class Tcp implements IService {
         }
 
         try {
-          const decodedToken = jwt.verify(token, secretKey) as JwtPayload;
+          const decodedToken = jwt.verify(token, this.secretKey) as JwtPayload;
 
           if (typeof decodedToken !== "object" || !decodedToken.id) {
             const errorData = {

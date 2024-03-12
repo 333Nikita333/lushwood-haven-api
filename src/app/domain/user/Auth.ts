@@ -6,14 +6,17 @@ import { ApiError } from "helpers/ApiError";
 import { ApiResponse } from "helpers/ApiResponse";
 import jwt from "jsonwebtoken";
 import {
+  Authorized,
   Body,
   CurrentUser,
   Get,
   JsonController,
   Post,
+  Req,
   UseAfter,
 } from "routing-controllers";
 import { LoginUserDto, RegisterUserDto } from "./User.dto";
+import { CustomRequest } from "./User.types";
 
 @JsonController("/auth")
 export default class Auth {
@@ -140,10 +143,19 @@ export default class Auth {
 
   @Get("/current")
   @UseAfter(HTTPResponseLogger)
-  async current(@CurrentUser() user?: User): Promise<ApiResponse<User | {}>> {
-    const userData = { name: user?.name, email: user?.email };
-    console.log("userData => ", userData);
+  async current(@CurrentUser() user: User): Promise<ApiResponse<User | {}>> {
+    const userData = { name: user.name, email: user.email };
 
     return new ApiResponse(true, userData, "User data fetched successfully");
+  }
+
+  @Post("/logout")
+  @Authorized()
+  @UseAfter(HTTPResponseLogger)
+  async logout(@Req() request: CustomRequest): Promise<ApiResponse<true>> {
+    console.log("request.user", request.user);
+    const { _id: userId } = request.user;
+    await UserModel.findByIdAndUpdate(userId, { token: null });
+    return new ApiResponse(true);
   }
 }
