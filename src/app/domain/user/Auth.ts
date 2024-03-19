@@ -80,6 +80,8 @@ export default class Auth {
       user: {
         name,
         email,
+        newOrders: [],
+        oldOrders: [],
       },
     };
 
@@ -135,6 +137,8 @@ export default class Auth {
       user: {
         name: existingUser.name,
         email: existingUser.email,
+        newOrders: existingUser.newOrders,
+        oldOrders: existingUser.oldOrders,
       },
     };
 
@@ -144,7 +148,12 @@ export default class Auth {
   @Get("/current")
   @UseAfter(HTTPResponseLogger)
   async current(@CurrentUser() user: User): Promise<ApiResponse<User | {}>> {
-    const userData = { name: user.name, email: user.email };
+    const userData = {
+      name: user.name,
+      email: user.email,
+      newOrders: user.newOrders,
+      oldOrders: user.oldOrders,
+    };
 
     return new ApiResponse(true, userData, "User data fetched successfully");
   }
@@ -153,9 +162,9 @@ export default class Auth {
   @Authorized()
   @UseAfter(HTTPResponseLogger)
   async logout(@Req() request: CustomRequest): Promise<ApiResponse<true>> {
-    console.log("request.user", request.user);
     const { _id: userId } = request.user;
     await UserModel.findByIdAndUpdate(userId, { token: null });
+
     return new ApiResponse(true);
   }
 }

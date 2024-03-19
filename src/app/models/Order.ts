@@ -4,7 +4,7 @@ import { roomTypeList } from "./Room";
 export interface Order {
   _id: Schema.Types.ObjectId;
   roomName: string;
-  roomType: "Standart" | "Family" | "Suite";
+  roomType: "Standard" | "Family" | "Suite";
   dateCheckIn: Date;
   dateCheckOut: Date;
 }

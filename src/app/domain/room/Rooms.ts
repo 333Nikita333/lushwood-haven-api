@@ -1,18 +1,12 @@
 import { HTTPResponseLogger } from "app/middlewares/HTTPResponseLogger";
-import RoomModel, { Room } from "app/models/Room";
+import RoomModel from "app/models/Room";
 import { ApiError } from "helpers/ApiError";
 import { ApiResponse } from "helpers/ApiResponse";
-import {
-  Get,
-  JsonController,
-  Param,
-  QueryParam,
-  UseAfter,
-} from "routing-controllers";
+import { Get, JsonController, Param, UseAfter } from "routing-controllers";
 import { IRoom } from "./Rooms.types";
 
 @JsonController("/services")
-export default class Booking {
+export default class Rooms {
   @Get("/rooms")
   @UseAfter(HTTPResponseLogger)
   async getRooms(): Promise<ApiResponse<IRoom[]>> {

@@ -4,7 +4,7 @@ export interface Room extends Document {
   _id: Schema.Types.ObjectId;
   name: string;
   images: string[];
-  type: "Standart" | "Family" | "Suite";
+  type: "Standard" | "Family" | "Suite";
   perNight: number;
   description: string;
   amenities: {
@@ -12,7 +12,7 @@ export interface Room extends Document {
     desc: string;
   }[];
 }
-export const roomTypeList = ["Standart", "Family", "Suite"];
+export const roomTypeList = ["Standard", "Family", "Suite"];
 
 const roomSchema = new Schema<Room>(
   {

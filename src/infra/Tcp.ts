@@ -52,7 +52,6 @@ export class Tcp implements IService {
 
         try {
           if (bearer !== "Bearer" || !token) {
-            console.log("Here");
             const errorData = {
               message: "Invalid or missing Authorization Header",
               code: "UNAUTHORIZED",
@@ -61,6 +60,7 @@ export class Tcp implements IService {
           }
 
           const decodedToken = jwt.verify(token, this.secretKey) as JwtPayload;
+          console.log("decodedToken", decodedToken);
 
           if (typeof decodedToken !== "object" || !decodedToken.id) {
             const errorData = {
