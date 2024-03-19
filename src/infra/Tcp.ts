@@ -13,9 +13,9 @@ import { IService } from "types/services";
 export class Tcp implements IService {
   private static instance: Tcp;
   private routePrefix = "/api";
-  private mongoUrl = process.env.DB_HOST!;
+  private readonly mongoUrl = process.env.DB_HOST!;
   private port = process.env.PORT || 3000;
-  private secretKey = process.env.SECRET_KEY || "";
+  private readonly secretKey = process.env.SECRET_KEY || "";
   public server = express();
 
   constructor() {
@@ -52,7 +52,7 @@ export class Tcp implements IService {
 
         try {
           if (bearer !== "Bearer" || !token) {
-            console.log("Here")
+            console.log("Here");
             const errorData = {
               message: "Invalid or missing Authorization Header",
               code: "UNAUTHORIZED",
@@ -89,11 +89,7 @@ export class Tcp implements IService {
           action.request.user = existingUser;
           return true;
         } catch (error) {
-          const errorData = {
-            message: "Expired token or not valid token",
-            code: "UNAUTHORIZED",
-          };
-          throw new ApiError(401, errorData);
+          throw error;
         }
       },
       currentUserChecker: async (action: Action): Promise<User> => {
@@ -137,11 +133,7 @@ export class Tcp implements IService {
 
           return existingUser;
         } catch (error) {
-          const errorData = {
-            message: "Expired token or not valid token",
-            code: "UNAUTHORIZED",
-          };
-          throw new ApiError(401, errorData);
+          throw error;
         }
       },
       controllers,
