@@ -1,5 +1,5 @@
 import { HTTPResponseLogger } from "app/middlewares/HTTPResponseLogger";
-import UserModel, { User } from "app/models/User";
+import UserModel from "app/models/User";
 import { compareSync, genSaltSync, hashSync } from "bcryptjs";
 import { validate } from "class-validator";
 import { ApiError } from "helpers/ApiError";
@@ -16,33 +16,24 @@ import {
   UseAfter,
 } from "routing-controllers";
 import { LoginUserDto, RegisterUserDto } from "./User.dto";
-import { CustomRequest } from "./User.types";
+import { CustomRequest, IUserResponse } from "./User.types";
+import mongoose from "mongoose";
 
 @JsonController("/auth")
 export default class Auth {
   private secretKey = process.env.SECRET_KEY || "";
-  private uniquePayloadString: string;
-
-  generateUniqueString(length: number): void {
-    const characters =
-      "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    let result = "";
-    const charactersLength = characters.length;
-    for (let i = 0; i < length; i++) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    this.uniquePayloadString = result;
-  }
 
   @Post("/register")
   @UseAfter(HTTPResponseLogger)
   async register(
     @Body() body: RegisterUserDto
-  ): Promise<ApiResponse<User | {}>> {
+  ): Promise<ApiResponse<IUserResponse | {}>> {
     const errors = await validate(body);
+    console.log("body => ", body);
     const { name, email, password } = body;
 
     if (errors.length > 0) {
+      console.log("errors => ", errors);
       const errorData = {
         message: "Validation failed",
         code: "USER_VALIDATION_FAILED",
@@ -64,24 +55,24 @@ export default class Auth {
 
     const hashedPassword = hashSync(password, genSaltSync(10));
 
+    const newUser = await UserModel.create({
+      ...body,
+      password: hashedPassword,
+    });
+
     const payload = {
-      id: this.generateUniqueString(10),
+      id: newUser._id,
     };
 
     const token = jwt.sign(payload, this.secretKey, { expiresIn: "23h" });
-    await UserModel.create({
-      ...body,
-      password: hashedPassword,
-      token,
-    });
+
+    await UserModel.findByIdAndUpdate(newUser._id, { token });
 
     const userData = {
       token,
       user: {
         name,
         email,
-        newOrders: [],
-        oldOrders: [],
       },
     };
 
@@ -90,7 +81,9 @@ export default class Auth {
 
   @Post("/login")
   @UseAfter(HTTPResponseLogger)
-  async login(@Body() body: LoginUserDto): Promise<ApiResponse<User | {}>> {
+  async login(
+    @Body() body: LoginUserDto
+  ): Promise<ApiResponse<IUserResponse | {}>> {
     const errors = await validate(body);
     const { email, password } = body;
 
@@ -147,7 +140,9 @@ export default class Auth {
 
   @Get("/current")
   @UseAfter(HTTPResponseLogger)
-  async current(@CurrentUser() user: User): Promise<ApiResponse<User | {}>> {
+  async current(
+    @CurrentUser() user: IUserResponse
+  ): Promise<ApiResponse<IUserResponse | {}>> {
     const userData = {
       name: user.name,
       email: user.email,
@@ -162,7 +157,8 @@ export default class Auth {
   @Authorized()
   @UseAfter(HTTPResponseLogger)
   async logout(@Req() request: CustomRequest): Promise<ApiResponse<true>> {
-    const { _id: userId } = request.user;
+    console.log("request.user, logoutController => ", request.user);
+    const { id: userId } = request.user;
     await UserModel.findByIdAndUpdate(userId, { token: null });
 
     return new ApiResponse(true);

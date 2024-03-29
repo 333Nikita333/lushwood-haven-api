@@ -1,9 +1,9 @@
 export interface IRoom {
   id: string;
-  name: string;
+  name?: string;
   images: string[];
-  type: "Standard" | "Family" | "Suite";
-  perNight: number;
-  description: string;
+  type?: string;
+  perNight?: number;
+  description?: string;
   amenities: { icon: string; desc: string }[];
 }

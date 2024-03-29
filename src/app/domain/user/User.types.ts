@@ -1,12 +1,18 @@
-import { User } from "app/models/User";
 import { Request } from "express";
+import { ClientOrder } from "../order/Order.types";
 
-export interface IUser {
+export interface IUserRequest {
   id: string;
   name: string;
   email: string;
   password: string;
 }
+
+export interface IUserResponse extends Omit<IUserRequest, "password"> {
+  newOrders: ClientOrder[];
+  oldOrders: ClientOrder[];
+}
+
 export interface CustomRequest extends Request {
-  user: User;
+  user: IUserResponse;
 }

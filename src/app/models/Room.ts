@@ -1,20 +1,8 @@
-import { Document, Model, Schema, model } from "mongoose";
+import { Schema, model } from "mongoose";
 
-export interface Room extends Document {
-  _id: Schema.Types.ObjectId;
-  name: string;
-  images: string[];
-  type: "Standard" | "Family" | "Suite";
-  perNight: number;
-  description: string;
-  amenities: {
-    icon: string;
-    desc: string;
-  }[];
-}
 export const roomTypeList = ["Standard", "Family", "Suite"];
 
-const roomSchema = new Schema<Room>(
+const roomSchema = new Schema(
   {
     name: {
       type: String,
@@ -47,6 +35,6 @@ const roomSchema = new Schema<Room>(
   { versionKey: false, timestamps: false }
 );
 
-const RommModel: Model<Room> = model<Room>("Room", roomSchema);
+const RommModel = model("Room", roomSchema);
 
 export default RommModel;

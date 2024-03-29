@@ -1,18 +1,8 @@
-import { Document, Model, Schema, model } from "mongoose";
-import { Order } from "./Order";
+import { Schema, model } from "mongoose";
 
-const emailRegexp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-export interface User extends Document {
-  _id: Schema.Types.ObjectId;
-  name: string;
-  email: string;
-  password: string;
-  newOrders: Order[];
-  oldOrders: Order[];
-  token: string | null;
-}
+export const emailRegexp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
-const userSchema = new Schema<User>(
+const userSchema = new Schema(
   {
     name: {
       type: String,
@@ -23,6 +13,10 @@ const userSchema = new Schema<User>(
       match: emailRegexp,
       required: [true, "Email is required"],
       unique: true,
+    },
+    phone: {
+      type: String,
+      default: null,
     },
     password: {
       type: String,
@@ -46,10 +40,18 @@ const userSchema = new Schema<User>(
     ],
     oldOrders: [
       {
-        name: String,
-        type: String,
-        dateCheckIn: Date,
-        dateCheckOut: Date,
+        roomName: {
+          type: String,
+        },
+        roomType: {
+          type: String,
+        },
+        dateCheckIn: {
+          type: Date,
+        },
+        dateCheckOut: {
+          type: Date,
+        },
       },
     ],
     token: {
@@ -60,6 +62,6 @@ const userSchema = new Schema<User>(
   { versionKey: false, timestamps: true }
 );
 
-const UserModel: Model<User> = model<User>("User", userSchema);
+const UserModel = model("User", userSchema);
 
 export default UserModel;

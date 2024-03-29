@@ -1,19 +1,29 @@
 import { Schema, model } from "mongoose";
 import { roomTypeList } from "./Room";
+import { emailRegexp } from "./User";
 
-export interface Order {
-  _id: Schema.Types.ObjectId;
-  roomName: string;
-  roomType: "Standard" | "Family" | "Suite";
-  dateCheckIn: Date;
-  dateCheckOut: Date;
-}
-
-const orderSchema = new Schema<Order>(
+const orderSchema = new Schema(
   {
+    client: {
+      name: {
+        type: String,
+        required: [true, "Client name is required"],
+      },
+      email: {
+        type: String,
+        match: emailRegexp,
+        required: [true, "Client email is required"],
+        unique: true,
+      },
+      phone: {
+        type: String,
+        required: [true, "Client phone is required"],
+      },
+    },
     roomName: {
       type: String,
       required: [true, "Room name is required"],
+      unique: true,
     },
     roomType: {
       type: String,
@@ -32,5 +42,6 @@ const orderSchema = new Schema<Order>(
   { versionKey: false, timestamps: true }
 );
 
-const OrderModel = model<Order>("Order", orderSchema);
+const OrderModel = model("Order", orderSchema);
+
 export default OrderModel;

@@ -1,15 +1,17 @@
 import {
+  IsAlphanumeric,
   IsEmail,
   IsNotEmpty,
   IsString,
   Length,
   Matches,
 } from "class-validator";
-import { IUser } from "./User.types";
+import { IUserRequest } from "./User.types";
 
-export class RegisterUserDto implements Omit<IUser, "id"> {
+export class RegisterUserDto implements Omit<IUserRequest, "id"> {
   @IsNotEmpty({ message: "Name is required" })
   @IsString({ message: "Name must be a string" })
+  @IsAlphanumeric() // Новое правило проверки типа
   name: string;
 
   @IsNotEmpty({ message: "Email is required" })
@@ -28,7 +30,7 @@ export class RegisterUserDto implements Omit<IUser, "id"> {
   password: string;
 }
 
-export class LoginUserDto implements Omit<IUser, "id" | "name"> {
+export class LoginUserDto implements Omit<IUserRequest, "id" | "name"> {
   @IsNotEmpty({ message: "Email is required" })
   @IsEmail()
   @IsString({ message: "Email must be a string" })

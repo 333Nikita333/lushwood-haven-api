@@ -23,7 +23,12 @@ export default class Rooms {
     const rooms = data.map(({ _id, ...room }) => ({
       id: _id.toString(),
       ...room,
+      amenities: room.amenities.map((item) => ({
+        icon: item.icon || "",
+        desc: item.desc || "",
+      })),
     }));
+    console.log("rooms", rooms);
 
     return new ApiResponse(true, rooms, "Rooms fetched successfully");
   }
@@ -31,17 +36,14 @@ export default class Rooms {
   @Get("/rooms/:name")
   @UseAfter(HTTPResponseLogger)
   async getOne(@Param("name") name: string): Promise<ApiResponse<IRoom>> {
-    console.log("name", name);
     try {
       const searchQuery = name
         .toLowerCase()
         .split("-")
         .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
         .join(" ");
-      console.log("searchQuery", searchQuery);
 
       const data = await RoomModel.findOne({ name: searchQuery }).lean();
-      console.log("data", data);
 
       if (!data || data === null) {
         const errorData = {
@@ -55,6 +57,10 @@ export default class Rooms {
       const room = {
         id: _id.toString(),
         ...restData,
+        amenities: data.amenities.map((item) => ({
+          icon: item.icon || "",
+          desc: item.desc || "",
+        })),
       };
       console.log("room", room);
 
