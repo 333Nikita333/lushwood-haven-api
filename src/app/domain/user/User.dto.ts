@@ -1,5 +1,4 @@
 import {
-  IsAlphanumeric,
   IsEmail,
   IsNotEmpty,
   IsString,
@@ -11,7 +10,6 @@ import { IUserRequest } from "./User.types";
 export class RegisterUserDto implements Omit<IUserRequest, "id"> {
   @IsNotEmpty({ message: "Name is required" })
   @IsString({ message: "Name must be a string" })
-  @IsAlphanumeric() // Новое правило проверки типа
   name: string;
 
   @IsNotEmpty({ message: "Email is required" })

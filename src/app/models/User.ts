@@ -1,4 +1,5 @@
 import { Schema, model } from "mongoose";
+import { dateRegexp } from "./Order";
 
 export const emailRegexp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
@@ -31,10 +32,12 @@ const userSchema = new Schema(
           type: String,
         },
         dateCheckIn: {
-          type: Date,
+          type: String,
+          match: dateRegexp,
         },
         dateCheckOut: {
-          type: Date,
+          type: String,
+          match: dateRegexp,
         },
       },
     ],
@@ -47,10 +50,12 @@ const userSchema = new Schema(
           type: String,
         },
         dateCheckIn: {
-          type: Date,
+          type: String,
+          match: dateRegexp,
         },
         dateCheckOut: {
-          type: Date,
+          type: String,
+          match: dateRegexp,
         },
       },
     ],

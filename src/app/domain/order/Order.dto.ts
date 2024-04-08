@@ -1,5 +1,4 @@
 import {
-  IsDate,
   IsDateString,
   IsEmail,
   IsIn,
@@ -10,8 +9,6 @@ import {
   ValidateNested,
 } from "class-validator";
 import { IClient, IOrder } from "./Order.types";
-import { Transform, Type } from "class-transformer";
-
 
 class ClientDto implements IClient {
   @IsNotEmpty({ message: "Client name is required" })
@@ -40,11 +37,11 @@ export class OrderRoomDto implements Omit<IOrder, "id"> {
   @IsIn(["Standard", "Family", "Suite"], { message: "Invalid room type" })
   roomType: "Standard" | "Family" | "Suite";
 
-  @IsNotEmpty({ message: "Check-in date is required" })
-  @IsDate()
-  dateCheckIn: Date;
+  @IsNotEmpty({ message: "Date check in is required" })
+  @IsString()
+  dateCheckIn: string;
 
-  @IsNotEmpty({ message: "Check-out date is required" })
-  @IsDate()
-  dateCheckOut: Date;
+  @IsNotEmpty({ message: "Date check out is required" })
+  @IsString()
+  dateCheckOut: string;
 }

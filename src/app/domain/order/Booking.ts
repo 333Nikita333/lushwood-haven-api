@@ -26,14 +26,23 @@ export default class Booking {
     @Body() body: OrderRoomDto
   ): Promise<ApiResponse<ClientOrder | {}>> {
     const errors = await validate(body);
-    console.log("body => ", body);
-    const { curClient, roomName, roomType, dateCheckIn, dateCheckOut } = body;
 
     if (errors.length > 0) {
       console.log("errors => ", errors);
       const errorData = {
         message: "Validation failed",
         code: "ORDER_VALIDATION_FAILED",
+        errors,
+      };
+      throw new ApiError(400, errorData);
+    }
+
+    const { curClient, roomName, roomType, dateCheckIn, dateCheckOut } = body;
+
+    if (new Date(dateCheckIn) >= new Date(dateCheckOut)) {
+      const errorData = {
+        message: "Date check in must be before date check out",
+        code: "DATE_CHECK_IN_MUST_BE_BEFORE_DATE_CHECK_OUT",
         errors,
       };
       throw new ApiError(400, errorData);
@@ -50,7 +59,7 @@ export default class Booking {
       throw new ApiError(409, errorData);
     }
     const existingUser = await UserModel.findOne({ email: curClient.email });
-    
+
     if (!existingUser) {
       const errorData = {
         message: "User not found with this email",
@@ -67,6 +76,7 @@ export default class Booking {
       dateCheckIn,
       dateCheckOut,
     });
+
     const userOrderData = {
       roomName,
       roomType,

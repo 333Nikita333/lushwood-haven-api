@@ -28,7 +28,6 @@ export default class Rooms {
         desc: item.desc || "",
       })),
     }));
-    console.log("rooms", rooms);
 
     return new ApiResponse(true, rooms, "Rooms fetched successfully");
   }
@@ -62,7 +61,6 @@ export default class Rooms {
           desc: item.desc || "",
         })),
       };
-      console.log("room", room);
 
       return new ApiResponse(true, room, "Room fetched successfully");
     } catch (error) {

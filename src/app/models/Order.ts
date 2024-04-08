@@ -2,6 +2,11 @@ import { Schema, model } from "mongoose";
 import { roomTypeList } from "./Room";
 import { emailRegexp } from "./User";
 
+export const dateRegexp = [
+  /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/,
+  "({VALUE}) is not a valid date format. Date format must be 'YYYY-MM-DD HH:MM'",
+];
+
 const orderSchema = new Schema(
   {
     client: {
@@ -31,11 +36,13 @@ const orderSchema = new Schema(
       enum: roomTypeList,
     },
     dateCheckIn: {
-      type: Date,
+      type: String,
+      match: dateRegexp,
       required: [true, "Date check in is required"],
     },
     dateCheckOut: {
-      type: Date,
+      type: String,
+      match: dateRegexp,
       required: [true, "Date check out is required"],
     },
   },

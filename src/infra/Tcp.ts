@@ -61,7 +61,6 @@ export class Tcp implements IService {
           }
 
           const decodedToken = jwt.verify(token, this.secretKey) as JwtPayload;
-          console.log("decodedToken", decodedToken);
 
           if (typeof decodedToken !== "object" || !decodedToken.id) {
             const errorData = {
@@ -86,7 +85,6 @@ export class Tcp implements IService {
             };
             throw new ApiError(401, errorData);
           }
-          console.log("existingUser, authCheckToken", existingUser);
 
           action.request.user = existingUser;
           return true;
@@ -110,7 +108,6 @@ export class Tcp implements IService {
 
         try {
           const decodedToken = jwt.verify(token, this.secretKey) as JwtPayload;
-          console.log("decodedToken", decodedToken);
 
           if (typeof decodedToken !== "object" || !decodedToken.id) {
             const errorData = {
@@ -121,10 +118,8 @@ export class Tcp implements IService {
           }
 
           const { id } = decodedToken;
-          console.log("id =>", id);
 
           const existingUser = await UserModel.findById(id);
-          console.log("existingUser, curUser", existingUser);
 
           if (
             !existingUser ||
@@ -137,7 +132,6 @@ export class Tcp implements IService {
             };
             throw new ApiError(401, errorData);
           }
-          console.log("existingUser, curUserCheck", existingUser);
 
           return existingUser;
         } catch (error) {

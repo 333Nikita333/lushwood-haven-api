@@ -17,7 +17,6 @@ import {
 } from "routing-controllers";
 import { LoginUserDto, RegisterUserDto } from "./User.dto";
 import { CustomRequest, IUserResponse } from "./User.types";
-import mongoose from "mongoose";
 
 @JsonController("/auth")
 export default class Auth {
@@ -29,7 +28,6 @@ export default class Auth {
     @Body() body: RegisterUserDto
   ): Promise<ApiResponse<IUserResponse | {}>> {
     const errors = await validate(body);
-    console.log("body => ", body);
     const { name, email, password } = body;
 
     if (errors.length > 0) {
@@ -123,15 +121,29 @@ export default class Auth {
     };
     const token = jwt.sign(payload, this.secretKey, { expiresIn: "23h" });
 
-    await UserModel.findByIdAndUpdate(existingUser._id, { token });
+    await UserModel.findByIdAndUpdate(
+      existingUser._id,
+      { token },
+      { new: true }
+    );
 
     const userData = {
       token,
       user: {
         name: existingUser.name,
         email: existingUser.email,
-        newOrders: existingUser.newOrders,
-        oldOrders: existingUser.oldOrders,
+        newOrders: existingUser.newOrders.map((order) => ({
+          roomName: order.roomName,
+          roomType: order.roomType,
+          dateCheckIn: order.dateCheckIn,
+          dateCheckOut: order.dateCheckOut,
+        })),
+        oldOrders: existingUser.oldOrders.map((order) => ({
+          roomName: order.roomName,
+          roomType: order.roomType,
+          dateCheckIn: order.dateCheckIn,
+          dateCheckOut: order.dateCheckOut,
+        })),
       },
     };
 
@@ -146,8 +158,18 @@ export default class Auth {
     const userData = {
       name: user.name,
       email: user.email,
-      newOrders: user.newOrders,
-      oldOrders: user.oldOrders,
+      newOrders: user.newOrders.map((order) => ({
+        roomName: order.roomName,
+        roomType: order.roomType,
+        dateCheckIn: order.dateCheckIn,
+        dateCheckOut: order.dateCheckOut,
+      })),
+      oldOrders: user.oldOrders.map((order) => ({
+        roomName: order.roomName,
+        roomType: order.roomType,
+        dateCheckIn: order.dateCheckIn,
+        dateCheckOut: order.dateCheckOut,
+      })),
     };
 
     return new ApiResponse(true, userData, "User data fetched successfully");
@@ -157,7 +179,6 @@ export default class Auth {
   @Authorized()
   @UseAfter(HTTPResponseLogger)
   async logout(@Req() request: CustomRequest): Promise<ApiResponse<true>> {
-    console.log("request.user, logoutController => ", request.user);
     const { id: userId } = request.user;
     await UserModel.findByIdAndUpdate(userId, { token: null });
 

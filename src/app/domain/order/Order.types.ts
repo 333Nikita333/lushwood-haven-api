@@ -9,10 +9,8 @@ export interface IOrder {
   curClient: IClient;
   roomName: string;
   roomType: "Standard" | "Family" | "Suite";
-  dateCheckIn: Date;
-  dateCheckOut: Date;
+  dateCheckIn: string;
+  dateCheckOut: string;
 }
 
-export interface ClientOrder extends Omit<IOrder, "curClient | id"> {
-  userName: string;
-}
+export interface ClientOrder extends Omit<IOrder, "curClient | id"> {}
