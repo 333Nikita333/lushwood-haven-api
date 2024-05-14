@@ -5,6 +5,7 @@ import { validate } from "class-validator";
 import { ApiError } from "helpers/ApiError";
 import { ApiResponse } from "helpers/ApiResponse";
 import jwt from "jsonwebtoken";
+import { Types } from "mongoose";
 import {
   Authorized,
   Body,
@@ -22,16 +23,32 @@ import { CustomRequest, IUserResponse } from "./User.types";
 export default class Auth {
   private secretKey = process.env.SECRET_KEY || "";
 
+  private async generateUserToken(userId: Types.ObjectId): Promise<string> {
+    const payload = { id: userId };
+    const token = jwt.sign(payload, this.secretKey, { expiresIn: "23h" });
+    await UserModel.findByIdAndUpdate(userId, { token }, { new: true });
+    return token;
+  }
+
+  private processPassword(
+    enteredPassword: string,
+    currentPassword?: string
+  ): string | boolean {
+    if (currentPassword) {
+      return compareSync(enteredPassword, currentPassword);
+    } else {
+      return hashSync(enteredPassword, genSaltSync(10));
+    }
+  }
+
   @Post("/register")
   @UseAfter(HTTPResponseLogger)
   async register(
     @Body() body: RegisterUserDto
   ): Promise<ApiResponse<IUserResponse | {}>> {
     const errors = await validate(body);
-    const { name, email, password } = body;
 
     if (errors.length > 0) {
-      console.log("errors => ", errors);
       const errorData = {
         message: "Validation failed",
         code: "USER_VALIDATION_FAILED",
@@ -39,6 +56,8 @@ export default class Auth {
       };
       throw new ApiError(400, errorData);
     }
+
+    const { name, email, phone, password } = body;
 
     const existingUser = await UserModel.findOne({ email });
 
@@ -51,25 +70,20 @@ export default class Auth {
       throw new ApiError(409, errorData);
     }
 
-    const hashedPassword = hashSync(password, genSaltSync(10));
+    const hashedPassword = this.processPassword(password);
 
     const newUser = await UserModel.create({
       ...body,
       password: hashedPassword,
     });
 
-    const payload = {
-      id: newUser._id,
-    };
-
-    const token = jwt.sign(payload, this.secretKey, { expiresIn: "23h" });
-
-    await UserModel.findByIdAndUpdate(newUser._id, { token });
+    const token = await this.generateUserToken(newUser._id);
 
     const userData = {
       token,
       user: {
         name,
+        phone,
         email,
       },
     };
@@ -83,7 +97,6 @@ export default class Auth {
     @Body() body: LoginUserDto
   ): Promise<ApiResponse<IUserResponse | {}>> {
     const errors = await validate(body);
-    const { email, password } = body;
 
     if (errors.length > 0) {
       const errorData = {
@@ -93,6 +106,8 @@ export default class Auth {
       };
       throw new ApiError(400, errorData);
     }
+
+    const { email, password } = body;
 
     const existingUser = await UserModel.findOne({ email });
 
@@ -105,9 +120,12 @@ export default class Auth {
       throw new ApiError(404, errorData);
     }
 
-    const passwordCompare = compareSync(password, existingUser.password);
+    const isCorrectPassword = this.processPassword(
+      password,
+      existingUser.password
+    );
 
-    if (!passwordCompare) {
+    if (!isCorrectPassword) {
       const errorData = {
         message: "Incorrect password",
         code: "INCORRECT_PASSWORD",
@@ -116,16 +134,7 @@ export default class Auth {
       throw new ApiError(400, errorData);
     }
 
-    const payload = {
-      id: existingUser._id,
-    };
-    const token = jwt.sign(payload, this.secretKey, { expiresIn: "23h" });
-
-    await UserModel.findByIdAndUpdate(
-      existingUser._id,
-      { token },
-      { new: true }
-    );
+    const token = await this.generateUserToken(existingUser._id);
 
     const userData = {
       token,

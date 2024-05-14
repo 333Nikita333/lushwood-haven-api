@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 import { roomTypeList } from "./Room";
-import { emailRegexp } from "./User";
 
+export const emailRegexp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const dateRegexp = [
   /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/,
   "({VALUE}) is not a valid date format. Date format must be 'YYYY-MM-DD HH:MM'",

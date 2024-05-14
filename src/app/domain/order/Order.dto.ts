@@ -1,11 +1,12 @@
+import { emailRegexp } from "app/models/Order";
 import {
-  IsDateString,
   IsEmail,
   IsIn,
   IsNotEmpty,
   IsNotEmptyObject,
   IsPhoneNumber,
   IsString,
+  Matches,
   ValidateNested,
 } from "class-validator";
 import { IClient, IOrder } from "./Order.types";
@@ -17,6 +18,10 @@ class ClientDto implements IClient {
 
   @IsNotEmpty({ message: "Client email is required" })
   @IsEmail()
+  @IsString({ message: "Client email must be a string" })
+  @Matches(emailRegexp, {
+    message: "Invalid client email format",
+  })
   email: string;
 
   @IsNotEmpty({ message: "Client phone is required" })
@@ -27,7 +32,7 @@ class ClientDto implements IClient {
 export class OrderRoomDto implements Omit<IOrder, "id"> {
   @ValidateNested({ each: true })
   @IsNotEmptyObject()
-  curClient: ClientDto;
+  client: ClientDto;
 
   @IsNotEmpty({ message: "Room name is required" })
   @IsString({ message: "Room name must be a string" })

@@ -1,6 +1,8 @@
+import { emailRegexp } from "app/models/User";
 import {
   IsEmail,
   IsNotEmpty,
+  IsPhoneNumber,
   IsString,
   Length,
   Matches,
@@ -15,10 +17,17 @@ export class RegisterUserDto implements Omit<IUserRequest, "id"> {
   @IsNotEmpty({ message: "Email is required" })
   @IsEmail()
   @IsString({ message: "Email must be a string" })
-  @Matches(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, {
+  @Matches(emailRegexp, {
     message: "Invalid email format",
   })
   email: string;
+
+  @IsPhoneNumber()
+  @IsString({ message: "Phone number must be a string" })
+  @Matches(/^\+[1-9]\d{1,14}$/, {
+    message: "Invalid phone number format",
+  })
+  phone: string;
 
   @IsNotEmpty({ message: "Password is required" })
   @IsString()

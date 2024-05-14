@@ -6,7 +6,7 @@ export interface IClient {
 
 export interface IOrder {
   id: string;
-  curClient: IClient;
+  client: IClient;
   roomName: string;
   roomType: "Standard" | "Family" | "Suite";
   dateCheckIn: string;

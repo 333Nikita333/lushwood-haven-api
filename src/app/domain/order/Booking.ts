@@ -1,5 +1,6 @@
 import { HTTPRequestLogger } from "app/middlewares/HTTPRequestLogger";
 import OrderModel from "app/models/Order";
+import RoomModel from "app/models/Room";
 import UserModel from "app/models/User";
 import { validate } from "class-validator";
 import { ApiError } from "helpers/ApiError";
@@ -28,7 +29,6 @@ export default class Booking {
     const errors = await validate(body);
 
     if (errors.length > 0) {
-      console.log("errors => ", errors);
       const errorData = {
         message: "Validation failed",
         code: "ORDER_VALIDATION_FAILED",
@@ -37,7 +37,17 @@ export default class Booking {
       throw new ApiError(400, errorData);
     }
 
-    const { curClient, roomName, roomType, dateCheckIn, dateCheckOut } = body;
+    const { client, roomName, roomType, dateCheckIn, dateCheckOut } = body;
+
+    const existingRoom = await RoomModel.findOne({ name: roomName });
+    if (!existingRoom) {
+      const errorData = {
+        message: "Room with this name not found",
+        code: "ROOM_NOT_FOUND",
+        errors,
+      };
+      throw new ApiError(404, errorData);
+    }
 
     if (new Date(dateCheckIn) >= new Date(dateCheckOut)) {
       const errorData = {
@@ -49,7 +59,6 @@ export default class Booking {
     }
 
     const existingOrder = await OrderModel.findOne({ roomName });
-
     if (existingOrder) {
       const errorData = {
         message: "Order with this room already exists",
@@ -58,7 +67,8 @@ export default class Booking {
       };
       throw new ApiError(409, errorData);
     }
-    const existingUser = await UserModel.findOne({ email: curClient.email });
+
+    const existingUser = await UserModel.findOne({ email: client.email });
 
     if (!existingUser) {
       const errorData = {
@@ -70,7 +80,7 @@ export default class Booking {
     }
 
     await OrderModel.create({
-      client: curClient,
+      client,
       roomName,
       roomType,
       dateCheckIn,
@@ -91,7 +101,7 @@ export default class Booking {
 
     const orderData = {
       order: {
-        userName: curClient.name,
+        userName: client.name,
         roomName,
         roomType,
         dateCheckIn,
