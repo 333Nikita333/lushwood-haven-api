@@ -13,4 +13,4 @@ export interface IOrder {
   dateCheckOut: string;
 }
 
-export interface ClientOrder extends Omit<IOrder, "curClient | id"> {}
+export interface ClientOrder extends Omit<IOrder, "client"> {}

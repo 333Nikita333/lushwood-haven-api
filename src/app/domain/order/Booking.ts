@@ -118,7 +118,15 @@ export default class Booking {
   async getAllNewOrders(
     @Req() request: CustomRequest
   ): Promise<ApiResponse<ClientOrder[]>> {
-    const newOrders = request.user.newOrders;
+    const newOrders = request.user.newOrders.map(
+      ({ id, roomName, roomType, dateCheckIn, dateCheckOut }) => ({
+        id,
+        roomName,
+        roomType,
+        dateCheckIn,
+        dateCheckOut,
+      })
+    );
 
     return new ApiResponse(true, newOrders, "New orders fetched successfully");
   }
@@ -129,7 +137,15 @@ export default class Booking {
   async getAllOldOrders(
     @Req() request: CustomRequest
   ): Promise<ApiResponse<ClientOrder[]>> {
-    const oldOrders = request.user.oldOrders;
+    const oldOrders = request.user.oldOrders.map(
+      ({ id, roomName, roomType, dateCheckIn, dateCheckOut }) => ({
+        id,
+        roomName,
+        roomType,
+        dateCheckIn,
+        dateCheckOut,
+      })
+    );
 
     return new ApiResponse(true, oldOrders, "Old orders fetched successfully");
   }
