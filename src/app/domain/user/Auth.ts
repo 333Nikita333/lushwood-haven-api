@@ -2,8 +2,7 @@ import { HTTPResponseLogger } from "app/middlewares/HTTPResponseLogger";
 import UserModel from "app/models/User";
 import { compareSync, genSaltSync, hashSync } from "bcryptjs";
 import { validate } from "class-validator";
-import { ApiError } from "helpers/ApiError";
-import { ApiResponse } from "helpers/ApiResponse";
+import { ApiResponse, ErrorHandler } from "helpers";
 import jwt from "jsonwebtoken";
 import { Types } from "mongoose";
 import {
@@ -49,12 +48,12 @@ export default class Auth {
     const errors = await validate(body);
 
     if (errors.length > 0) {
-      const errorData = {
-        message: "Validation failed",
-        code: "USER_VALIDATION_FAILED",
-        errors,
-      };
-      throw new ApiError(400, errorData);
+      ErrorHandler.throwError(
+        400,
+        "Validation failed",
+        "USER_VALIDATION_FAILED",
+        errors
+      );
     }
 
     const { name, email, phone, password } = body;
@@ -62,12 +61,12 @@ export default class Auth {
     const existingUser = await UserModel.findOne({ email });
 
     if (existingUser) {
-      const errorData = {
-        message: "User with this email already exists",
-        code: "USER_ALREADY_EXISTS",
-        errors,
-      };
-      throw new ApiError(409, errorData);
+      ErrorHandler.throwError(
+        409,
+        "User with this email already exists",
+        "USER_ALREADY_EXISTS",
+        errors
+      );
     }
 
     const hashedPassword = this.processPassword(password);
@@ -99,12 +98,12 @@ export default class Auth {
     const errors = await validate(body);
 
     if (errors.length > 0) {
-      const errorData = {
-        message: "Validation failed",
-        code: "USER_VALIDATION_FAILED",
-        errors,
-      };
-      throw new ApiError(400, errorData);
+      ErrorHandler.throwError(
+        400,
+        "Validation failed",
+        "USER_VALIDATION_FAILED",
+        errors
+      );
     }
 
     const { email, password } = body;
@@ -112,42 +111,46 @@ export default class Auth {
     const existingUser = await UserModel.findOne({ email });
 
     if (!existingUser) {
-      const errorData = {
-        message: "User not found",
-        code: "USER_NOT_FOUND",
-        errors,
-      };
-      throw new ApiError(404, errorData);
+      ErrorHandler.throwError(404, "User not found", "USER_NOT_FOUND", errors);
     }
+
+    const {
+      _id,
+      name,
+      email: userEmail,
+      password: existingUserPassword,
+      newOrders,
+      oldOrders,
+    } = existingUser!;
 
     const isCorrectPassword = this.processPassword(
       password,
-      existingUser.password
+      existingUserPassword
     );
 
     if (!isCorrectPassword) {
-      const errorData = {
-        message: "Incorrect password",
-        code: "INCORRECT_PASSWORD",
-        errors,
-      };
-      throw new ApiError(400, errorData);
+      ErrorHandler.throwError(
+        400,
+        "Incorrect password",
+        "INCORRECT_PASSWORD",
+        errors
+      );
     }
 
-    const token = await this.generateUserToken(existingUser._id);
+    const token = await this.generateUserToken(_id);
 
     const userData = {
       token,
       user: {
-        name: existingUser.name,
-        email: existingUser.email,
-        newOrders: existingUser.newOrders.map((order) => ({
+        name,
+        email: userEmail,
+        newOrders: newOrders.map((order) => ({
           roomName: order.roomName,
           roomType: order.roomType,
           dateCheckIn: order.dateCheckIn,
           dateCheckOut: order.dateCheckOut,
         })),
-        oldOrders: existingUser.oldOrders.map((order) => ({
+        oldOrders: oldOrders.map((order) => ({
           roomName: order.roomName,
           roomType: order.roomType,
           dateCheckIn: order.dateCheckIn,

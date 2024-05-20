@@ -20,7 +20,6 @@ export class ApiError extends HttpError {
     }
 
     this.name = "ApiError";
-    this.message = error.message || "";
     this.error = { ...error, status, code: error.code || "INTERNAL_ERROR" };
   }
 }

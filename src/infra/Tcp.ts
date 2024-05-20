@@ -1,10 +1,10 @@
-import "dotenv/config";
 import { controllers } from "app/domain";
 import { IUserResponse } from "app/domain/user/User.types";
 import { middlewares } from "app/middlewares";
 import UserModel from "app/models/User";
+import "dotenv/config";
 import express from "express";
-import { ApiError } from "helpers/ApiError";
+import { ErrorHandler } from "helpers";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import mongoose from "mongoose";
 import "reflect-metadata";
@@ -34,21 +34,21 @@ export class Tcp implements IService {
 
     try {
       if (bearer !== "Bearer" || !token) {
-        const errorData = {
-          message: "Invalid or missing Authorization Header",
-          code: "UNAUTHORIZED",
-        };
-        throw new ApiError(401, errorData);
+        ErrorHandler.throwError(
+          401,
+          "Invalid or missing Authorization Header",
+          "UNAUTHORIZED"
+        );
       }
 
       const decodedToken = jwt.verify(token, this.secretKey) as JwtPayload;
 
       if (typeof decodedToken !== "object" || !decodedToken.id) {
-        const errorData = {
-          message: "Invalid token format or missing required data",
-          code: "UNAUTHORIZED",
-        };
-        throw new ApiError(401, errorData);
+        ErrorHandler.throwError(
+          401,
+          "Invalid token format or missing required data",
+          "UNAUTHORIZED"
+        );
       }
 
       const { id } = decodedToken;
@@ -60,11 +60,11 @@ export class Tcp implements IService {
         !existingUser.token ||
         existingUser.token !== token
       ) {
-        const errorData = {
-          message: "Expired token or user not found",
-          code: "UNAUTHORIZED",
-        };
-        throw new ApiError(401, errorData);
+        ErrorHandler.throwError(
+          401,
+          "Expired token or user not found",
+          "UNAUTHORIZED"
+        );
       }
 
       action.request.user = existingUser;
@@ -79,11 +79,11 @@ export class Tcp implements IService {
     const [bearer, token] = authorization.split(" ");
 
     if (bearer !== "Bearer" || !token) {
-      const errorData = {
-        message: "Invalid or missing Authorization Header",
-        code: "UNAUTHORIZED",
-      };
-      throw new ApiError(401, errorData);
+      ErrorHandler.throwError(
+        401,
+        "Invalid or missing Authorization Header",
+        "UNAUTHORIZED"
+      );
     }
 
     try {
@@ -91,11 +91,11 @@ export class Tcp implements IService {
       const decodedToken = jwt.verify(token, this.secretKey) as JwtPayload;
 
       if (typeof decodedToken !== "object" || !decodedToken.id) {
-        const errorData = {
-          message: "Invalid token format or missing required data",
-          code: "UNAUTHORIZED",
-        };
-        throw new ApiError(401, errorData);
+        ErrorHandler.throwError(
+          401,
+          "Invalid token format or missing required data",
+          "UNAUTHORIZED"
+        );
       }
 
       const { id } = decodedToken;
@@ -107,14 +107,14 @@ export class Tcp implements IService {
         !existingUser.token ||
         existingUser.token !== token
       ) {
-        const errorData = {
-          message: "Expired token or user not found",
-          code: "UNAUTHORIZED",
-        };
-        throw new ApiError(401, errorData);
+        ErrorHandler.throwError(
+          401,
+          "Expired token or user not found",
+          "UNAUTHORIZED"
+        );
       }
 
-      return existingUser;
+      return existingUser!;
     } catch (error) {
       throw error;
     }

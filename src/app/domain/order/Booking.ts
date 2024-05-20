@@ -3,8 +3,7 @@ import OrderModel from "app/models/Order";
 import RoomModel from "app/models/Room";
 import UserModel from "app/models/User";
 import { validate } from "class-validator";
-import { ApiError } from "helpers/ApiError";
-import { ApiResponse } from "helpers/ApiResponse";
+import { ApiResponse, DateValidator, ErrorHandler } from "helpers";
 import {
   Authorized,
   Body,
@@ -29,54 +28,59 @@ export default class Booking {
     const errors = await validate(body);
 
     if (errors.length > 0) {
-      const errorData = {
-        message: "Validation failed",
-        code: "ORDER_VALIDATION_FAILED",
-        errors,
-      };
-      throw new ApiError(400, errorData);
+      ErrorHandler.throwError(
+        400,
+        "Validation failed",
+        "ORDER_VALIDATION_FAILED",
+        errors
+      );
     }
 
     const { client, roomName, roomType, dateCheckIn, dateCheckOut } = body;
 
     const existingRoom = await RoomModel.findOne({ name: roomName });
     if (!existingRoom) {
-      const errorData = {
-        message: "Room with this name not found",
-        code: "ROOM_NOT_FOUND",
-        errors,
-      };
-      throw new ApiError(404, errorData);
+      ErrorHandler.throwError(
+        404,
+        "Room with this name not found",
+        "ROOM_NOT_FOUND",
+        errors
+      );
     }
 
-    if (new Date(dateCheckIn) >= new Date(dateCheckOut)) {
-      const errorData = {
-        message: "Date check in must be before date check out",
-        code: "DATE_CHECK_IN_MUST_BE_BEFORE_DATE_CHECK_OUT",
-        errors,
-      };
-      throw new ApiError(400, errorData);
+    try {
+      DateValidator.validateDateFormat(dateCheckIn);
+      DateValidator.validateDateFormat(dateCheckOut);
+      DateValidator.validateDateNotInPast(dateCheckIn);
+      DateValidator.validateCheckInBeforeCheckOut(dateCheckIn, dateCheckOut);
+    } catch (error) {
+      ErrorHandler.throwError(
+        400,
+        error.message,
+        "INVALID_DATE_FORMAT",
+        errors
+      );
     }
 
     const existingOrder = await OrderModel.findOne({ roomName });
     if (existingOrder) {
-      const errorData = {
-        message: "Order with this room already exists",
-        code: "ORDER_ALREADY_EXISTS",
-        errors,
-      };
-      throw new ApiError(409, errorData);
+      ErrorHandler.throwError(
+        409,
+        "Order with this room already exists",
+        "ORDER_ALREADY_EXISTS",
+        errors
+      );
     }
 
     const existingUser = await UserModel.findOne({ email: client.email });
 
     if (!existingUser) {
-      const errorData = {
-        message: "User not found with this email",
-        code: "USER_NOT_FOUND",
-        errors,
-      };
-      throw new ApiError(404, errorData);
+      ErrorHandler.throwError(
+        404,
+        "User not found with this email",
+        "USER_NOT_FOUND",
+        errors
+      );
     }
 
     await OrderModel.create({
@@ -95,7 +99,7 @@ export default class Booking {
     };
 
     await UserModel.findOneAndUpdate(
-      { email: existingUser.email },
+      { email: existingUser!.email },
       { $push: { newOrders: userOrderData } }
     );
 

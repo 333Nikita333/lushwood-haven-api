@@ -1,7 +1,6 @@
 import { HTTPResponseLogger } from "app/middlewares/HTTPResponseLogger";
 import RoomModel from "app/models/Room";
-import { ApiError } from "helpers/ApiError";
-import { ApiResponse } from "helpers/ApiResponse";
+import { ApiResponse, ErrorHandler } from "helpers";
 import { Get, JsonController, Param, UseAfter } from "routing-controllers";
 import { IRoom } from "./Rooms.types";
 
@@ -13,11 +12,7 @@ export default class Rooms {
     const data = await RoomModel.find().lean({ _id: 1 });
 
     if (!data || data.length === 0) {
-      const errorData = {
-        message: "Rooms not found",
-        code: "ROOMS_NOT_FOUND",
-      };
-      throw new ApiError(404, errorData);
+      ErrorHandler.throwError(404, "Rooms not found", "ROOMS_NOT_FOUND");
     }
 
     const rooms = data.map(({ _id, ...room }) => ({
@@ -45,18 +40,14 @@ export default class Rooms {
       const data = await RoomModel.findOne({ name: searchQuery }).lean();
 
       if (!data || data === null) {
-        const errorData = {
-          message: "Room not found",
-          code: "ROOM_NOT_FOUND",
-        };
-        throw new ApiError(404, errorData);
+        ErrorHandler.throwError(404, "Rooms not found", "ROOMS_NOT_FOUND");
       }
 
-      const { _id, ...restData } = data;
+      const { _id, ...restData } = data!;
       const room = {
         id: _id.toString(),
         ...restData,
-        amenities: data.amenities.map((item) => ({
+        amenities: data!.amenities.map((item) => ({
           icon: item.icon || "",
           desc: item.desc || "",
         })),
