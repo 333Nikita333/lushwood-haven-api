@@ -4,7 +4,7 @@ import { roomTypeList } from "./Room";
 export const emailRegexp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const dateRegexp = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
 
-const orderSchema = new Schema(
+export const orderSchema = new Schema(
   {
     client: {
       name: {
@@ -15,7 +15,6 @@ const orderSchema = new Schema(
         type: String,
         match: emailRegexp,
         required: [true, "Client email is required"],
-        unique: true,
       },
       phone: {
         type: String,
@@ -25,7 +24,6 @@ const orderSchema = new Schema(
     roomName: {
       type: String,
       required: [true, "Room name is required"],
-      unique: true,
     },
     roomType: {
       type: String,

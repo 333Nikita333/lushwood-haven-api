@@ -1,6 +1,7 @@
 import { controllers } from "app/domain";
 import { IUserResponse } from "app/domain/user/User.types";
 import { middlewares } from "app/middlewares";
+import ChangeStreamHandler from "app/middlewares/ChangeStreamHandler";
 import UserModel from "app/models/User";
 import "dotenv/config";
 import express from "express";
@@ -147,6 +148,10 @@ export class Tcp implements IService {
       defaultErrorHandler: true,
       validation: false,
     });
+
+    // Инициализируем ChangeStreamHandler для мониторинга изменений в коллекции заказов
+    const changeStreamHandler = ChangeStreamHandler.getInstance();
+    changeStreamHandler.watchOrderChanges();
 
     return new Promise<boolean>((resolve) => {
       server.listen(this.port, () => {

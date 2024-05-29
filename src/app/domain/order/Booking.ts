@@ -7,8 +7,10 @@ import { ApiResponse, DateValidator, ErrorHandler } from "helpers";
 import {
   Authorized,
   Body,
+  Delete,
   Get,
   JsonController,
+  Param,
   Post,
   Req,
   UseAfter,
@@ -16,6 +18,7 @@ import {
 import { CustomRequest } from "../user/User.types";
 import { OrderRoomDto } from "./Order.dto";
 import { ClientOrder } from "./Order.types";
+import { isValidObjectId } from "mongoose";
 
 @JsonController("/booking")
 export default class Booking {
@@ -83,7 +86,7 @@ export default class Booking {
       );
     }
 
-    await OrderModel.create({
+    const newUserOrder = await OrderModel.create({
       client,
       roomName,
       roomType,
@@ -92,6 +95,7 @@ export default class Booking {
     });
 
     const userOrderData = {
+      id: newUserOrder._id.toString(),
       roomName,
       roomType,
       dateCheckIn,
@@ -114,6 +118,32 @@ export default class Booking {
     };
 
     return new ApiResponse(true, orderData, "Order created successfully");
+  }
+
+  @Delete("/cancel/:orderId")
+  @Authorized()
+  @UseAfter(HTTPRequestLogger)
+  async cancelOrder(
+    @Param("orderId") orderId: string
+  ): Promise<ApiResponse<true>> {
+    console.log("orderId => ", typeof orderId);
+
+    if (!isValidObjectId(orderId)) {
+      ErrorHandler.throwError(
+        400,
+        `Order id ${orderId} is invalid`,
+        "INVALID_ORDER_ID"
+      );
+    }
+
+    const deletedOrder = await OrderModel.findByIdAndRemove(orderId);
+    console.log("deletedOrder => ", deletedOrder);
+
+    if (!deletedOrder) {
+      ErrorHandler.throwError(404, "Order not found", "ORDER_NOT_FOUND");
+    }
+
+    return new ApiResponse(true);
   }
 
   @Get("/neworders")

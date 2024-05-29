@@ -25,6 +25,9 @@ const userSchema = new Schema(
     },
     newOrders: [
       {
+        _id: {
+          type: Schema.Types.ObjectId,
+        },
         roomName: {
           type: String,
         },
@@ -43,6 +46,9 @@ const userSchema = new Schema(
     ],
     oldOrders: [
       {
+        _id: {
+          type: Schema.Types.ObjectId,
+        },
         roomName: {
           type: String,
         },
