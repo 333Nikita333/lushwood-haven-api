@@ -36,6 +36,7 @@ This project is the backend for a hotel room booking application. It provides an
 <br>Receiving information about a user's old room bookings.
 
 ## Project structure
+```bash
 ├── src
 │   ├── app
 │   │   ├── domain
@@ -51,6 +52,7 @@ This project is the backend for a hotel room booking application. It provides an
 ├── package.json
 ├── tsconfig.json
 └── README.md
+```
 
 - app: main application directory
 - domain: domain models and logic
