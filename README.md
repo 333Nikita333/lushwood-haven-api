@@ -9,7 +9,7 @@ This project is the backend for a hotel room booking application. It provides an
 
 - [API Endpoints](#api-endpoints)
 - [Project structure](#project-structure)
-- [Installation](#installation)
+- [Installation](#installation-and-launch)
 - [Used Libraries](#used-libraries)
 
 ## API Endpoints
@@ -61,23 +61,23 @@ This project is the backend for a hotel room booking application. It provides an
 - types: general application types
 - main.ts: application entry point
 
-## Installation
-1. Клонируйте репозиторий:
+## Installation and launch
+1. Clone the repository:
 ```bash
 git clone https://github.com/333Nikita333/lushwood-haven-api.git
 ```
-2. Перейдите в директорию проекта:
+2. Go to the project directory:
 ```bash
 cd lushwood-haven-api
 ```
-3. Для установки зависимостей используйте: `npm install` or `yarn install`
-4. Создайте файл .env в корне проекта и добавьте необходимые переменные окружения. Пример:
+3. To install dependencies use: `npm install` or `yarn install`
+4. Create a .env file in the project root and add the necessary environment variables. Example:
 ```bash
 DB_HOST=mongodb://myDatabaseUser:D1fficultP%40ssw0rd@db1.example.net:27017,db2.example.net:2500/?replicaSet=test&connectTimeoutMS=300000
 PORT=4000
 SECRET_KEY=YOUR_SECRET_KEY
 ```
-5. Для запуска проекта в режиме разработки используйте команду: `npm run dev` or `yarn dev`
+5. To run the project in development mode, use the command: `npm run dev` or `yarn dev`
 
 ## Used Libraries
 - class-transformer: for transforming class objects
