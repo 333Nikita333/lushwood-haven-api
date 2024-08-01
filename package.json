@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "node -r tsconfig-paths/register ./dist/main.js",
+    "start": "yarn build && node -r tsconfig-paths/register ./dist/main.js",
     "dev": "nodemon",
     "build": "tsc -p tsconfig.json"
   },
