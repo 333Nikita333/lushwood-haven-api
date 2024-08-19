@@ -1,5 +1,5 @@
 import { ValidationError } from "class-validator";
-import { ApiError } from "helpers";
+import { ApiError } from "./ApiError";
 
 interface ErrorData {
   message: string;

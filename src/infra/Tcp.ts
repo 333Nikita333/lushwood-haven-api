@@ -1,16 +1,16 @@
-import { controllers } from "app/domain";
-import { IUserResponse } from "app/domain/user/User.types";
-import { middlewares } from "app/middlewares";
-import ChangeStreamHandler from "app/middlewares/ChangeStreamHandler";
-import UserModel from "app/models/User";
 import "dotenv/config";
 import express from "express";
-import { ErrorHandler } from "helpers";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import mongoose from "mongoose";
 import "reflect-metadata";
 import { Action, useExpressServer } from "routing-controllers";
-import { IService } from "types/services";
+import { controllers } from "../app/domain";
+import { IUserResponse } from "../app/domain/user/User.types";
+import { middlewares } from "../app/middlewares";
+import ChangeStreamHandler from "../app/middlewares/ChangeStreamHandler";
+import UserModel from "../app/models/User";
+import { ErrorHandler } from "../helpers";
+import { IService } from "../types/services";
 
 export class Tcp implements IService {
   private static instance: Tcp;

@@ -1,7 +1,7 @@
-import { HTTPResponseLogger } from "app/middlewares/HTTPResponseLogger";
-import RoomModel from "app/models/Room";
-import { ApiResponse, ErrorHandler } from "helpers";
 import { Get, JsonController, Param, UseAfter } from "routing-controllers";
+import { ApiResponse, ErrorHandler } from "../../../helpers";
+import { HTTPResponseLogger } from "../../middlewares/HTTPResponseLogger";
+import RoomModel from "../../models/Room";
 import { IRoom } from "./Rooms.types";
 
 @JsonController("/services")

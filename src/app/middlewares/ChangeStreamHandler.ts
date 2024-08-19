@@ -1,6 +1,6 @@
-import UserModel from "app/models/User";
-import { ErrorHandler } from "helpers";
 import mongoose from "mongoose";
+import { ErrorHandler } from "../../helpers";
+import UserModel from "../models/User";
 
 class ChangeStreamHandler {
   private static instance: ChangeStreamHandler;

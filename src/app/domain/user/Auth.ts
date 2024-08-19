@@ -1,8 +1,5 @@
-import { HTTPResponseLogger } from "app/middlewares/HTTPResponseLogger";
-import UserModel from "app/models/User";
 import { compareSync, genSaltSync, hashSync } from "bcryptjs";
 import { validate } from "class-validator";
-import { ApiResponse, ErrorHandler } from "helpers";
 import jwt from "jsonwebtoken";
 import { Types } from "mongoose";
 import {
@@ -15,6 +12,9 @@ import {
   Req,
   UseAfter,
 } from "routing-controllers";
+import { ApiResponse, ErrorHandler } from "../../../helpers";
+import { HTTPResponseLogger } from "../../middlewares/HTTPResponseLogger";
+import UserModel from "../../models/User";
 import { LoginUserDto, RegisterUserDto } from "./User.dto";
 import { CustomRequest, IUserResponse } from "./User.types";
 

@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
+    "declaration": true,
     "allowJs": false,
+    "removeComments": true,
+    "incremental": true,
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
     "esModuleInterop": true,
@@ -9,12 +12,12 @@
     "lib": ["ES2021"],
     "module": "CommonJS",
     "moduleResolution": "node",
-    "baseUrl": "./src",
+    // "baseUrl": "./src",
     "outDir": "./dist",
     "skipLibCheck": true,
     "sourceMap": true,
     "strictNullChecks": true,
-    "target": "es2019"
+    "target": "ES2021"
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]

@@ -1,4 +1,3 @@
-import { emailRegexp } from "app/models/User";
 import {
   IsEmail,
   IsNotEmpty,
@@ -7,6 +6,7 @@ import {
   Length,
   Matches,
 } from "class-validator";
+import { emailRegexp } from "../../models/User";
 import { IUserRequest } from "./User.types";
 
 export class RegisterUserDto implements Omit<IUserRequest, "id"> {

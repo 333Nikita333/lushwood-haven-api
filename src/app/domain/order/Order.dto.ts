@@ -1,4 +1,3 @@
-import { emailRegexp } from "app/models/Order";
 import {
   IsEmail,
   IsIn,
@@ -9,6 +8,7 @@ import {
   Matches,
   ValidateNested,
 } from "class-validator";
+import { emailRegexp } from "../../models/Order";
 import { IClient, IOrder } from "./Order.types";
 
 class ClientDto implements IClient {

@@ -1,4 +1,4 @@
-import { IService } from "types/services";
+import { IService } from "../types/services";
 import { Tcp } from "./Tcp";
 
 export class App implements IService {
