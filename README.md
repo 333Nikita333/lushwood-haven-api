@@ -1,9 +1,10 @@
 # Lushwood Haven API
-## Backend for [Lushwood Haven App](https://github.com/333Nikita333/lushwood-haven)
+## Rest API for [Lushwood Haven App](https://github.com/333Nikita333/lushwood-haven)
 
 ## Project Description
 This project is the backend for a hotel room booking application. It provides an API for registering and authenticating users, as well as viewing, managing and booking rooms.
-
+The API is live and can be accessed at the following URL:
+[https://lushwood-haven-api.onrender.com](https://lushwood-haven-api.onrender.com)
 
 ## Table of Contents
 
