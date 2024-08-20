@@ -1,7 +1,7 @@
 import {
   IsEmail,
   IsNotEmpty,
-  IsPhoneNumber,
+  IsOptional,
   IsString,
   Length,
   Matches,
@@ -22,12 +22,9 @@ export class RegisterUserDto implements Omit<IUserRequest, "id"> {
   })
   email: string;
 
-  @IsPhoneNumber()
+  @IsOptional()
   @IsString({ message: "Phone number must be a string" })
-  @Matches(/^\+[1-9]\d{1,14}$/, {
-    message: "Invalid phone number format",
-  })
-  phone: string;
+  phone?: string;
 
   @IsNotEmpty({ message: "Password is required" })
   @IsString()
