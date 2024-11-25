@@ -117,7 +117,16 @@ export class Tcp implements IService {
 
       return existingUser!;
     } catch (error) {
-      throw error;
+        if (error instanceof jwt.TokenExpiredError) {
+          ErrorHandler.throwError(
+            401,
+            "Token has expired",
+            "UNAUTHORIZED"
+          );
+        }
+
+        // Для других ошибок, выбрасываем исходное исключение
+        throw error;
     }
   }
 
