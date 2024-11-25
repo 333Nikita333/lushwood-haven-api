@@ -125,7 +125,6 @@ export class Tcp implements IService {
           );
         }
 
-        // Для других ошибок, выбрасываем исходное исключение
         throw error;
     }
   }
@@ -158,7 +157,6 @@ export class Tcp implements IService {
       validation: false,
     });
 
-    // Инициализируем ChangeStreamHandler для мониторинга изменений в коллекции заказов
     const changeStreamHandler = ChangeStreamHandler.getInstance();
     changeStreamHandler.watchOrderChanges();
 
