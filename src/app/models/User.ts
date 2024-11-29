@@ -23,48 +23,54 @@ const userSchema = new Schema(
       type: String,
       required: [true, "Password is required"],
     },
-    newOrders: [
-      {
-        _id: {
-          type: Schema.Types.ObjectId,
+    newOrders: {
+      type: [
+        {
+          _id: {
+            type: Schema.Types.ObjectId,
+          },
+          roomName: {
+            type: String,
+          },
+          roomType: {
+            type: String,
+          },
+          dateCheckIn: {
+            type: String,
+            match: dateRegexp,
+          },
+          dateCheckOut: {
+            type: String,
+            match: dateRegexp,
+          },
         },
-        roomName: {
-          type: String,
+      ],
+      default: [],
+    },
+    oldOrders: {
+      type: [
+        {
+          _id: {
+            type: Schema.Types.ObjectId,
+          },
+          roomName: {
+            type: String,
+          },
+          roomType: {
+            type: String,
+          },
+          dateCheckIn: {
+            type: String,
+            match: dateRegexp,
+          },
+          dateCheckOut: {
+            type: String,
+            match: dateRegexp,
+          },
         },
-        roomType: {
-          type: String,
-        },
-        dateCheckIn: {
-          type: String,
-          match: dateRegexp,
-        },
-        dateCheckOut: {
-          type: String,
-          match: dateRegexp,
-        },
-      },
-    ],
-    oldOrders: [
-      {
-        _id: {
-          type: Schema.Types.ObjectId,
-        },
-        roomName: {
-          type: String,
-        },
-        roomType: {
-          type: String,
-        },
-        dateCheckIn: {
-          type: String,
-          match: dateRegexp,
-        },
-        dateCheckOut: {
-          type: String,
-          match: dateRegexp,
-        },
-      },
-    ],
+      ],
+      default: [],
+    },
     token: {
       type: String,
       default: null,
