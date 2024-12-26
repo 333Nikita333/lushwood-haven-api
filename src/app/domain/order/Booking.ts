@@ -107,17 +107,7 @@ export default class Booking {
       { $push: { newOrders: userOrderData } }
     );
 
-    const orderData = {
-      order: {
-        userName: client.name,
-        roomName,
-        roomType,
-        dateCheckIn,
-        dateCheckOut,
-      },
-    };
-
-    return new ApiResponse(true, orderData, "Order created successfully");
+    return new ApiResponse(true, userOrderData, "Order created successfully");
   }
 
   @Delete("/cancel/:orderId")
