@@ -93,6 +93,7 @@ export default class Booking {
       dateCheckIn,
       dateCheckOut,
     });
+
     const userOrderData = {
       id: newUserOrder._id.toString(),
       roomName,
