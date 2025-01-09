@@ -145,12 +145,14 @@ export default class Auth {
         name,
         email: userEmail,
         newOrders: newOrders.map((order) => ({
+          id: order._id?.toString(),
           roomName: order.roomName,
           roomType: order.roomType,
           dateCheckIn: order.dateCheckIn,
           dateCheckOut: order.dateCheckOut,
         })),
         oldOrders: oldOrders.map((order) => ({
+          id: order._id?.toString(),
           roomName: order.roomName,
           roomType: order.roomType,
           dateCheckIn: order.dateCheckIn,
